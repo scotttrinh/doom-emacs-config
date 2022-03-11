@@ -53,17 +53,30 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
+(defun evil-surround-type ()
+  "Read a typename from the minibuffer and wrap selection in angle brackets"
+  (let ((tname (evil-surround-read-from-minibuffer "" "")))
+    (cons (format "%s<" (or tname ""))
+          ">")))
+
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (global-subword-mode 1)
 (setq-hook! 'typescript-tsx-mode-hook +format-with-lsp nil)
 (setq-hook! 'typescript-mode-hook +format-with-lsp nil)
 (setq-hook! 'js2-mode-hook +format-with-lsp nil)
+(setq-hook! 'js-mode-hook +format-with-lsp nil)
 (setq-hook! 'typescript-tsx-mode-hook
   web-mode-code-indent-offset 2
   web-mode-markup-indent-offset 2
   web-mode-css-indent-offset 2
   web-mode-attr-indent-offset 2)
 (setq-hook! 'typescript-mode-hook typescript-indent-level 2)
+
+(after! evil-surround
+  (let ((pairs '((?T . evil-surround-type))))
+    (prependq! evil-surround-pairs-alist pairs)
+    (prependq! evil-embrace-evil-surround-keys (mapcar #'car pairs))))
+
 (after! flycheck
   (map! :leader
         :desc "Errors" "e" flycheck-command-map))
